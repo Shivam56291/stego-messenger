@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.stegomsg.ui.controllers.RegisterController"
+           styleClass="app-content">
+    <VBox alignment="CENTER" maxWidth="380" spacing="14" styleClass="auth-card">
+        <VBox spacing="4" alignment="CENTER">
+            <Label text="Create your account" styleClass="app-title" />
+            <Label text="Only an email and password are required." styleClass="muted" wrapText="true" />
+        </VBox>
+
+        <VBox spacing="8">
+            <Label text="Email" styleClass="muted" />
+            <TextField fx:id="emailField" promptText="you@example.com" />
+
+            <Label text="Display alias (optional)" styleClass="muted" />
+            <TextField fx:id="aliasField" promptText="How others will see you — anonymity encouraged" />
+
+            <Label text="Password" styleClass="muted" />
+            <PasswordField fx:id="passwordField" promptText="At least 10 characters" onKeyReleased="#handlePasswordTyped" />
+            <ProgressBar fx:id="strengthBar" maxWidth="Infinity" progress="0" />
+            <Label fx:id="strengthLabel" styleClass="hint" />
+
+            <Label text="Confirm password" styleClass="muted" />
+            <PasswordField fx:id="confirmPasswordField" promptText="Re-enter password" onAction="#handleRegister" />
+        </VBox>
+
+        <Label fx:id="errorLabel" styleClass="status-danger" wrapText="true" managed="false" visible="false" />
+
+        <Button text="Create Account" styleClass="button-primary" maxWidth="Infinity" onAction="#handleRegister" />
+        <Button text="Back to Log In" styleClass="link-button" onAction="#handleGoToLogin" />
+
+        <Label styleClass="hint" wrapText="true" textAlignment="CENTER"
+               text="We store only your email, a securely hashed password, and a public key used to encrypt messages sent to you. No name, phone number, or other personal details are collected." />
+    </VBox>
+</StackPane>

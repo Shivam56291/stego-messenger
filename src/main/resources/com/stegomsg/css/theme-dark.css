@@ -1,0 +1,184 @@
+/*
+ * Secure Stego Messenger — dark theme design system (ARCHITECTURE.md section U/27).
+ *
+ * JavaFX CSS supports "looked-up colors" (custom properties) defined on .root and
+ * referenced elsewhere by name — this is what plays the role of CSS variables here,
+ * so the whole theme can be re-skinned by editing the block below only.
+ */
+
+.root {
+    /* --- palette (edit these to re-theme the whole app) --- */
+    -bg-base:        #14161c;
+    -bg-elevated:     #1c1f28;
+    -bg-card:         #22252f;
+    -border-subtle:   #2f3341;
+    -text-primary:    #eef0f5;
+    -text-secondary:  #9aa0ae;
+    -accent-primary:  #7c6cf0;   /* primary actions */
+    -accent-primary-hover: #8f81f3;
+    -accent-danger:   #e5556a;
+    -accent-success:  #43c98d;   /* safe / secure operation */
+    -accent-warning:  #e0b64a;   /* warning */
+    -accent-info:     #4aa3e0;
+
+    -fx-background-color: -bg-base;
+    -fx-font-family: "Segoe UI", "Inter", "Helvetica Neue", sans-serif;
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 13px;
+}
+
+/* ---------- layout shells ---------- */
+.app-header {
+    -fx-background-color: -bg-elevated;
+    -fx-padding: 12 20;
+    -fx-border-color: transparent transparent -border-subtle transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.app-sidebar {
+    -fx-background-color: -bg-elevated;
+    -fx-padding: 16 8;
+    -fx-border-color: transparent -border-subtle transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+.app-content {
+    -fx-background-color: -bg-base;
+}
+
+/* ---------- typography ---------- */
+.app-title { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: -text-primary; }
+.section-title { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: -text-primary; }
+.muted { -fx-text-fill: -text-secondary; -fx-font-size: 11px; }
+.hint { -fx-text-fill: -text-secondary; -fx-font-size: 11px; -fx-font-style: italic; }
+
+/* ---------- buttons ---------- */
+.button {
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-padding: 8 16;
+}
+.button-primary {
+    -fx-background-color: -accent-primary;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.button-primary:hover { -fx-background-color: -accent-primary-hover; }
+.button-primary:disabled { -fx-opacity: 0.5; }
+
+.button-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 8;
+}
+.button-secondary:hover { -fx-background-color: -bg-card; }
+
+.button-danger {
+    -fx-background-color: transparent;
+    -fx-text-fill: -accent-danger;
+    -fx-border-color: -accent-danger;
+    -fx-border-radius: 8;
+}
+.button-danger:hover { -fx-background-color: derive(-accent-danger, -80%); }
+
+.link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -accent-primary;
+    -fx-underline: false;
+    -fx-padding: 2 4;
+}
+.link-button:hover { -fx-underline: true; }
+
+.sidebar-nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-secondary;
+    -fx-alignment: CENTER_LEFT;
+    -fx-pref-width: 200;
+    -fx-background-radius: 8;
+    -fx-padding: 10 14;
+}
+.sidebar-nav-button:hover { -fx-background-color: -bg-card; -fx-text-fill: -text-primary; }
+.sidebar-nav-button-active {
+    -fx-background-color: derive(-accent-primary, 60%);
+    -fx-text-fill: -accent-primary;
+    -fx-font-weight: bold;
+}
+
+/* ---------- inputs ---------- */
+.text-field, .password-field, .text-area, .combo-box {
+    -fx-background-color: -bg-card;
+    -fx-text-fill: -text-primary;
+    -fx-prompt-text-fill: -text-secondary;
+    -fx-background-radius: 8;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 8;
+    -fx-padding: 8 12;
+}
+.text-field:focused, .password-field:focused, .text-area:focused, .combo-box:focused {
+    -fx-border-color: -accent-primary;
+}
+
+/* ---------- cards ---------- */
+.card {
+    -fx-background-color: -bg-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 12;
+    -fx-padding: 16;
+}
+.auth-card {
+    -fx-background-color: -bg-elevated;
+    -fx-background-radius: 16;
+    -fx-padding: 32;
+}
+
+/* ---------- badges / status ---------- */
+.badge { -fx-background-radius: 999; -fx-padding: 2 10; -fx-font-size: 10px; -fx-font-weight: bold; }
+.badge-unread { -fx-background-color: -accent-primary; -fx-text-fill: white; }
+.status-safe    { -fx-text-fill: -accent-success; -fx-font-weight: bold; }
+.status-warning { -fx-text-fill: -accent-warning; -fx-font-weight: bold; }
+.status-danger  { -fx-text-fill: -accent-danger;  -fx-font-weight: bold; }
+
+/* ---------- chat ---------- */
+.conversation-list, .message-thread { -fx-background-color: transparent; }
+.conversation-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+.conversation-cell:hover, .conversation-cell:selected {
+    -fx-background-color: -bg-card;
+}
+.stego-card {
+    -fx-background-color: -bg-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 12;
+    -fx-padding: 14;
+    -fx-max-width: 340;
+}
+.stego-card-sent { -fx-border-color: -accent-primary; }
+.plaintext-bubble {
+    -fx-background-color: derive(-accent-success, 60%);
+    -fx-background-radius: 12;
+    -fx-padding: 10 14;
+    -fx-max-width: 340;
+}
+
+/* ---------- capacity indicator ---------- */
+.capacity-panel {
+    -fx-background-color: -bg-card;
+    -fx-background-radius: 10;
+    -fx-padding: 10 14;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 10;
+}
+.progress-bar > .bar { -fx-background-color: -accent-success; -fx-background-radius: 6; }
+.progress-bar > .track { -fx-background-color: -bg-elevated; -fx-background-radius: 6; }
+.progress-bar-warning > .bar { -fx-background-color: -accent-warning; }
+.progress-bar-danger > .bar { -fx-background-color: -accent-danger; }
+
+/* ---------- misc ---------- */
+.separator-line { -fx-background-color: -border-subtle; }
+.list-view, .scroll-pane { -fx-background-color: transparent; -fx-background: transparent; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
