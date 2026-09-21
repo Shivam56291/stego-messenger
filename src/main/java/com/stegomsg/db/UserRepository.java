@@ -9,10 +9,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * All queries here use PreparedStatement with bound parameters — never string
- * concatenation — which is what actually prevents SQL injection (section 23).
- */
+/** All user-account SQL is parameterized and PostgreSQL-aware. */
 public final class UserRepository {
 
     private final Database database;
@@ -29,18 +26,18 @@ public final class UserRepository {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, user.getId());
+            Database.setUuid(ps, 1, user.getId());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getDisplayAlias());
             ps.setString(4, user.getPasswordHash());
             ps.setString(5, user.getPublicKeyBase64());
             ps.setString(6, user.getProtectedPrivateKey());
             ps.setString(7, user.getPinHash());
-            ps.setInt(8, user.isPinEnabled() ? 1 : 0);
+            ps.setBoolean(8, user.isPinEnabled());
             ps.setInt(9, user.getFailedLoginAttempts());
             ps.setInt(10, user.getPinFailedAttempts());
             ps.setString(11, user.getStatus());
-            ps.setString(12, user.getCreatedAt().toString());
+            Database.setInstant(ps, 12, user.getCreatedAt());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw translateInsertError(e);
@@ -62,7 +59,7 @@ public final class UserRepository {
     public Optional<User> findById(String id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
+            Database.setUuid(ps, 1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(map(rs)) : Optional.empty();
             }
@@ -80,13 +77,13 @@ public final class UserRepository {
             """;
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getPinHash());
-            ps.setInt(2, user.isPinEnabled() ? 1 : 0);
+            ps.setBoolean(2, user.isPinEnabled());
             ps.setInt(3, user.getFailedLoginAttempts());
-            ps.setString(4, user.getAccountLockedUntil() == null ? null : user.getAccountLockedUntil().toString());
+            Database.setInstant(ps, 4, user.getAccountLockedUntil());
             ps.setInt(5, user.getPinFailedAttempts());
-            ps.setString(6, user.getPinLockedUntil() == null ? null : user.getPinLockedUntil().toString());
+            Database.setInstant(ps, 6, user.getPinLockedUntil());
             ps.setString(7, user.getStatus());
-            ps.setString(8, user.getId());
+            Database.setUuid(ps, 8, user.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("Database error updating user security state", e);
@@ -95,34 +92,31 @@ public final class UserRepository {
 
     private User map(ResultSet rs) throws SQLException {
         User user = new User(
-                rs.getString("id"),
+                Database.getUuid(rs, "id"),
                 rs.getString("email"),
                 rs.getString("display_alias"),
                 rs.getString("password_hash"),
                 rs.getString("public_key"),
                 rs.getString("protected_private_key"),
-                Instant.parse(rs.getString("created_at"))
+                Database.getInstant(rs, "created_at")
         );
         user.setPinHash(rs.getString("pin_hash"));
-        user.setPinEnabled(rs.getInt("pin_enabled") == 1);
+        user.setPinEnabled(rs.getBoolean("pin_enabled"));
         user.setFailedLoginAttempts(rs.getInt("failed_login_attempts"));
-        String lockedUntil = rs.getString("account_locked_until");
-        if (lockedUntil != null) user.setAccountLockedUntil(Instant.parse(lockedUntil));
+        Instant lockedUntil = Database.getInstant(rs, "account_locked_until");
+        if (lockedUntil != null) user.setAccountLockedUntil(lockedUntil);
         user.setPinFailedAttempts(rs.getInt("pin_failed_attempts"));
-        String pinLockedUntil = rs.getString("pin_locked_until");
-        if (pinLockedUntil != null) user.setPinLockedUntil(Instant.parse(pinLockedUntil));
+        Instant pinLockedUntil = Database.getInstant(rs, "pin_locked_until");
+        if (pinLockedUntil != null) user.setPinLockedUntil(pinLockedUntil);
         user.setStatus(rs.getString("status"));
         return user;
     }
 
-    /**
-     * Translates a unique-constraint violation into a domain exception WITHOUT leaking
-     * which specific constraint failed in a way that would let an attacker enumerate
-     * registered emails — see ARCHITECTURE.md section 5 on privacy-conscious error
-     * messages. The caller (AuthService) is responsible for showing a generic message.
-     */
     private RuntimeException translateInsertError(SQLException e) {
-        if (e.getMessage() != null && e.getMessage().toLowerCase().contains("unique")) {
+        // PostgreSQL duplicate-key SQLSTATE is 23505. Keep the message generic at the
+        // service/UI layer so registration cannot be used to enumerate existing emails.
+        if ("23505".equals(e.getSQLState())
+                || (e.getMessage() != null && e.getMessage().toLowerCase().contains("unique"))) {
             return new DuplicateEmailException();
         }
         return new IllegalStateException("Database error creating user", e);

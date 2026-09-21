@@ -26,36 +26,30 @@ public final class MessageRepository {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, message.getId());
-            ps.setString(2, message.getConversationId());
-            ps.setString(3, message.getSenderId());
-            ps.setString(4, message.getRecipientId());
+            Database.setUuid(ps, 1, message.getId());
+            Database.setUuid(ps, 2, message.getConversationId());
+            Database.setUuid(ps, 3, message.getSenderId());
+            Database.setUuid(ps, 4, message.getRecipientId());
             ps.setString(5, message.getImagePath());
             ps.setInt(6, message.getPayloadBytes());
             ps.setInt(7, message.getImageWidth());
             ps.setInt(8, message.getImageHeight());
             ps.setString(9, message.getStatus().name().toLowerCase());
-            ps.setString(10, message.getCreatedAt().toString());
-            ps.setString(11, message.getReadAt() == null ? null : message.getReadAt().toString());
+            Database.setInstant(ps, 10, message.getCreatedAt());
+            Database.setInstant(ps, 11, message.getReadAt());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("Database error saving message", e);
         }
     }
 
-    /**
-     * Fetches a message by id AND verifies the requester is the sender or recipient in
-     * the same query — this is the IDOR guard from ARCHITECTURE.md section 22/33. If the
-     * requester is not a party to the message, this returns empty exactly as if the
-     * message didn't exist; the caller must never distinguish "not found" from
-     * "not yours" in what it tells the UI.
-     */
+    /** Fetches a message only when the requester is sender or recipient. */
     public Optional<Message> findByIdForUser(String messageId, String requestingUserId) {
         String sql = "SELECT * FROM messages WHERE id = ? AND (sender_id = ? OR recipient_id = ?)";
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, messageId);
-            ps.setString(2, requestingUserId);
-            ps.setString(3, requestingUserId);
+            Database.setUuid(ps, 1, messageId);
+            Database.setUuid(ps, 2, requestingUserId);
+            Database.setUuid(ps, 3, requestingUserId);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(map(rs)) : Optional.empty();
             }
@@ -75,9 +69,9 @@ public final class MessageRepository {
             """;
         List<Message> results = new ArrayList<>();
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, conversationId);
-            ps.setString(2, requestingUserId);
-            ps.setString(3, requestingUserId);
+            Database.setUuid(ps, 1, conversationId);
+            Database.setUuid(ps, 2, requestingUserId);
+            Database.setUuid(ps, 3, requestingUserId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     results.add(map(rs));
@@ -92,9 +86,9 @@ public final class MessageRepository {
     public void markRead(String messageId, String requestingUserId) {
         String sql = "UPDATE messages SET read_at = ? WHERE id = ? AND recipient_id = ?";
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, Instant.now().toString());
-            ps.setString(2, messageId);
-            ps.setString(3, requestingUserId);
+            Database.setInstant(ps, 1, Instant.now());
+            Database.setUuid(ps, 2, messageId);
+            Database.setUuid(ps, 3, requestingUserId);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new IllegalStateException("Database error marking message read", e);
@@ -102,22 +96,19 @@ public final class MessageRepository {
     }
 
     private Message map(ResultSet rs) throws SQLException {
-        String readAtStr = rs.getString("read_at");
         Message message = new Message(
-                rs.getString("id"),
-                rs.getString("conversation_id"),
-                rs.getString("sender_id"),
-                rs.getString("recipient_id"),
+                Database.getUuid(rs, "id"),
+                Database.getUuid(rs, "conversation_id"),
+                Database.getUuid(rs, "sender_id"),
+                Database.getUuid(rs, "recipient_id"),
                 rs.getString("image_path"),
                 rs.getInt("payload_bytes"),
                 rs.getInt("image_width"),
                 rs.getInt("image_height"),
                 Message.Status.valueOf(rs.getString("status").toUpperCase()),
-                Instant.parse(rs.getString("created_at"))
+                Database.getInstant(rs, "created_at")
         );
-        if (readAtStr != null) {
-            message.setReadAt(Instant.parse(readAtStr));
-        }
+        message.setReadAt(Database.getInstant(rs, "read_at"));
         return message;
     }
 }

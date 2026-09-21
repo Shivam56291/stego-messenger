@@ -37,12 +37,11 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- Embedded SQLite database driver (see database/schema_postgres.sql for the
-             recommended production schema on PostgreSQL/Supabase instead). -->
+        <!-- PostgreSQL JDBC driver used for the Supabase database connection. -->
         <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.45.3.0</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.13</version>
         </dependency>
 
         <!-- Testing -->

@@ -26,10 +26,10 @@ public final class ConversationRepository {
             WHERE (user_a_id = ? AND user_b_id = ?) OR (user_a_id = ? AND user_b_id = ?)
             """;
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, userIdA);
-            ps.setString(2, userIdB);
-            ps.setString(3, userIdB);
-            ps.setString(4, userIdA);
+            Database.setUuid(ps, 1, userIdA);
+            Database.setUuid(ps, 2, userIdB);
+            Database.setUuid(ps, 3, userIdB);
+            Database.setUuid(ps, 4, userIdA);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(map(rs)) : Optional.empty();
             }
@@ -41,10 +41,10 @@ public final class ConversationRepository {
     public Conversation insert(Conversation conversation) {
         String sql = "INSERT INTO conversations (id, user_a_id, user_b_id, created_at) VALUES (?, ?, ?, ?)";
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, conversation.getId());
-            ps.setString(2, conversation.getUserAId());
-            ps.setString(3, conversation.getUserBId());
-            ps.setString(4, conversation.getCreatedAt().toString());
+            Database.setUuid(ps, 1, conversation.getId());
+            Database.setUuid(ps, 2, conversation.getUserAId());
+            Database.setUuid(ps, 3, conversation.getUserBId());
+            Database.setInstant(ps, 4, conversation.getCreatedAt());
             ps.executeUpdate();
             return conversation;
         } catch (SQLException e) {
@@ -57,8 +57,8 @@ public final class ConversationRepository {
         String sql = "SELECT * FROM conversations WHERE user_a_id = ? OR user_b_id = ? ORDER BY created_at DESC";
         List<Conversation> results = new ArrayList<>();
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, userId);
-            ps.setString(2, userId);
+            Database.setUuid(ps, 1, userId);
+            Database.setUuid(ps, 2, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     results.add(map(rs));
@@ -73,7 +73,7 @@ public final class ConversationRepository {
     public Optional<Conversation> findById(String id) {
         String sql = "SELECT * FROM conversations WHERE id = ?";
         try (Connection conn = database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
+            Database.setUuid(ps, 1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(map(rs)) : Optional.empty();
             }
@@ -84,10 +84,10 @@ public final class ConversationRepository {
 
     private Conversation map(ResultSet rs) throws SQLException {
         return new Conversation(
-                rs.getString("id"),
-                rs.getString("user_a_id"),
-                rs.getString("user_b_id"),
-                Instant.parse(rs.getString("created_at"))
+                Database.getUuid(rs, "id"),
+                Database.getUuid(rs, "user_a_id"),
+                Database.getUuid(rs, "user_b_id"),
+                Database.getInstant(rs, "created_at")
         );
     }
 }

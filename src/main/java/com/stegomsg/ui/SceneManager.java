@@ -9,12 +9,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-/**
- * Central navigation point. Owns the primary Stage and swaps its Scene's root between
- * the Login/Register screens and the main Dashboard shell — the single-window,
- * single-shell approach requested in ARCHITECTURE.md section 9 ("avoid opening many
- * disconnected windows; prefer a single main shell with changing content views").
- */
 public final class SceneManager {
 
     private final Stage stage;
@@ -30,16 +24,16 @@ public final class SceneManager {
     }
 
     public void showLogin() {
-        setRoot(loadFxml("/com/stegomsg/fxml/login.fxml"), 480, 640);
+        setRoot(loadFxml("/com/stegomsg/fxml/login.fxml"), 980, 650, 860, 590, true);
     }
 
     public void showRegister() {
-        setRoot(loadFxml("/com/stegomsg/fxml/register.fxml"), 480, 680);
+        setRoot(loadFxml("/com/stegomsg/fxml/register.fxml"), 1040, 760, 880, 650, true);
     }
 
     public void showDashboard() {
         DashboardView dashboard = new DashboardView(this);
-        setRoot(dashboard, 1100, 720);
+        setRoot(dashboard, 1240, 780, 1040, 680, true);
     }
 
     private Parent loadFxml(String path) {
@@ -47,8 +41,6 @@ public final class SceneManager {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
             loader.setControllerFactory(controllerClass -> {
                 try {
-                    // Every controller in this app takes a SceneManager in its constructor,
-                    // giving it access to both navigation and the shared service layer.
                     return controllerClass.getConstructor(SceneManager.class).newInstance(this);
                 } catch (ReflectiveOperationException e) {
                     throw new IllegalStateException("Failed to construct controller " + controllerClass, e);
@@ -60,7 +52,8 @@ public final class SceneManager {
         }
     }
 
-    private void setRoot(Parent root, double width, double height) {
+    private void setRoot(Parent root, double width, double height, double minWidth, double minHeight,
+                         boolean resizable) {
         Scene scene = stage.getScene();
         if (scene == null) {
             scene = new Scene(root, width, height);
@@ -68,10 +61,15 @@ public final class SceneManager {
             stage.setScene(scene);
         } else {
             scene.setRoot(root);
+            stage.setWidth(width);
+            stage.setHeight(height);
         }
+
         stage.setTitle("Secure Stego Messenger");
-        stage.setMinWidth(720);
-        stage.setMinHeight(540);
+        stage.setMinWidth(minWidth);
+        stage.setMinHeight(minHeight);
+        stage.setResizable(resizable);
+        stage.centerOnScreen();
         stage.show();
     }
 }

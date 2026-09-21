@@ -1,44 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx"
+<StackPane fx:id="root"
+           xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.stegomsg.ui.controllers.LoginController"
-           styleClass="app-content">
-    <VBox alignment="CENTER" maxWidth="380" spacing="18" styleClass="auth-card">
-        <VBox spacing="4" alignment="CENTER">
-            <Label text="Secure Stego Messenger" styleClass="app-title" />
-            <Label text="Privacy-oriented messaging with image steganography" styleClass="muted" wrapText="true" />
-        </VBox>
+           styleClass="auth-shell">
+    <BorderPane>
+        <left>
+            <VBox spacing="22" prefWidth="405" styleClass="auth-brand-panel">
+                <VBox spacing="12">
+                    <Label text="SECURE STEGO" styleClass="brand-wordmark"/>
+                    <Label text="MESSENGER" styleClass="brand-submark"/>
+                </VBox>
 
-        <VBox spacing="10">
-            <Label text="Email" styleClass="muted" />
-            <TextField fx:id="emailField" promptText="you@example.com" />
+                <Region VBox.vgrow="ALWAYS"/>
 
-            <Label text="Password" styleClass="muted" />
-            <PasswordField fx:id="passwordField" promptText="Password" onAction="#handleLogin" />
-        </VBox>
+                <VBox spacing="12">
+                    <Label text="Private conversations, wrapped in images." styleClass="brand-headline" wrapText="true"/>
+                    <Label text="End-to-end encryption and image steganography work together so your messages are protected before they leave this application."
+                           styleClass="brand-copy" wrapText="true"/>
+                </VBox>
 
-        <Label fx:id="errorLabel" styleClass="status-danger" wrapText="true" managed="false" visible="false" />
+                <VBox spacing="10" styleClass="feature-stack">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="✓" styleClass="feature-icon"/>
+                        <Label text="Encrypted message payloads" styleClass="feature-text"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="✓" styleClass="feature-icon"/>
+                        <Label text="PNG steganography" styleClass="feature-text"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="✓" styleClass="feature-icon"/>
+                        <Label text="Supabase-backed account data" styleClass="feature-text"/>
+                    </HBox>
+                </VBox>
 
-        <VBox spacing="8">
-            <Button text="Log In" styleClass="button-primary" maxWidth="Infinity" onAction="#handleLogin" />
-            <Button text="Log In with Quick PIN" styleClass="button-secondary" maxWidth="Infinity" onAction="#handleQuickPinLogin" />
-        </VBox>
+                <Label text="Designed for privacy-conscious academic and personal use."
+                       styleClass="brand-footnote" wrapText="true"/>
+            </VBox>
+        </left>
 
-        <VBox alignment="CENTER" spacing="2">
-            <Label text="Don't have an account?" styleClass="muted" />
-            <Button text="Create one" styleClass="link-button" onAction="#handleGoToRegister" />
-        </VBox>
+        <center>
+            <StackPane styleClass="auth-form-panel">
+                <VBox maxWidth="440" spacing="22" alignment="TOP_LEFT" styleClass="auth-form">
+                    <VBox spacing="5">
+                        <Label text="Welcome back" styleClass="auth-heading"/>
+                        <Label text="Sign in to continue to your secure conversations."
+                               styleClass="auth-subheading" wrapText="true"/>
+                    </VBox>
 
-        <Label styleClass="hint" wrapText="true" textAlignment="CENTER"
-               text="Messages are encrypted end-to-end before being hidden inside images. This app is privacy-oriented, not perfectly anonymous — see About &gt; Privacy for details." />
-    </VBox>
+                    <Label fx:id="errorLabel" styleClass="inline-banner"
+                           wrapText="true" managed="false" visible="false"/>
+
+                    <VBox spacing="8">
+                        <Label text="Email address" styleClass="field-label"/>
+                        <TextField fx:id="emailField" promptText="you@example.com" styleClass="auth-input"/>
+                        <Label fx:id="emailHint" styleClass="field-message" managed="false" visible="false"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <HBox alignment="CENTER_LEFT" spacing="4">
+                            <Label text="Password" styleClass="field-label"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Required" styleClass="field-meta"/>
+                        </HBox>
+                        <HBox spacing="8" styleClass="password-row">
+                            <PasswordField fx:id="passwordField" promptText="Enter your password"
+                                           styleClass="auth-input" HBox.hgrow="ALWAYS" onAction="#handleLogin"/>
+                            <TextField fx:id="passwordVisibleField" promptText="Enter your password"
+                                       styleClass="auth-input" HBox.hgrow="ALWAYS" managed="false" visible="false"
+                                       onAction="#handleLogin"/>
+                            <Button fx:id="passwordToggleButton" text="Show"
+                                    styleClass="input-action" onAction="#togglePasswordVisibility"/>
+                        </HBox>
+                    </VBox>
+
+                    <CheckBox fx:id="rememberEmailCheck" text="Remember this email on this device"
+                              styleClass="remember-box"/>
+
+                    <VBox spacing="10">
+                        <Button fx:id="loginButton" text="Log In" maxWidth="Infinity"
+                                styleClass="button-primary" onAction="#handleLogin"/>
+                        <Button fx:id="quickPinButton" text="Use Quick PIN" maxWidth="Infinity"
+                                styleClass="button-secondary" onAction="#handleQuickPinLogin"/>
+                    </VBox>
+
+                    <HBox alignment="CENTER" spacing="6">
+                        <Label text="New here?" styleClass="muted"/>
+                        <Button text="Create an account" styleClass="link-button" onAction="#handleGoToRegister"/>
+                    </HBox>
+
+                    <VBox spacing="8" styleClass="trust-strip">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="●" styleClass="secure-dot"/>
+                            <Label text="Your private key stays in your session memory." styleClass="trust-title"/>
+                        </HBox>
+                        <Label text="We keep the account model minimal and avoid collecting names, phone numbers, or profile photos."
+                               styleClass="trust-copy" wrapText="true"/>
+                    </VBox>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
 </StackPane>

@@ -37,8 +37,8 @@ public final class AuthService {
     private final SessionService sessionService;
 
     public AuthService(UserRepository userRepository, SecurityEventRepository securityEvents,
-                        PasswordHasher passwordHasher, PasswordHasher pinHasher, KeyManager keyManager,
-                        CryptoService cryptoService, DeviceKeyStore deviceKeyStore, SessionService sessionService) {
+                       PasswordHasher passwordHasher, PasswordHasher pinHasher, KeyManager keyManager,
+                       CryptoService cryptoService, DeviceKeyStore deviceKeyStore, SessionService sessionService) {
         this.userRepository = userRepository;
         this.securityEvents = securityEvents;
         this.passwordHasher = passwordHasher;
@@ -68,9 +68,8 @@ public final class AuthService {
         try {
             userRepository.insert(user);
         } catch (UserRepository.DuplicateEmailException e) {
-            // Privacy-conscious: do not confirm the email already exists (section 5).
-            securityEvents.log(null, "REGISTRATION_REJECTED", "duplicate or invalid email attempt");
-            throw new AuthException("We couldn't create this account. Please check your details and try again.");
+            securityEvents.log(null, "REGISTRATION_REJECTED", "duplicate email attempt");
+            throw new DuplicateAccountException("This email is already registered. Try signing in instead.");
         }
         securityEvents.log(user.getId(), "ACCOUNT_CREATED", null);
         return user;
@@ -216,8 +215,18 @@ public final class AuthService {
         return lockedUntil != null && Instant.now().isBefore(lockedUntil);
     }
 
-    public static final class AuthException extends RuntimeException {
+    public static class AuthException extends RuntimeException {
         public AuthException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * Explicit registration feedback for the desktop UX. This does reveal that an email
+     * is registered, so it is intentionally limited to registration rather than login.
+     */
+    public static final class DuplicateAccountException extends AuthException {
+        public DuplicateAccountException(String message) {
             super(message);
         }
     }

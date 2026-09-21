@@ -35,12 +35,11 @@ public final class AppServices {
     private final ImageHistoryRepository imageHistoryRepository;
 
     public AppServices(Path appDataDir) {
-        Path dbFile = appDataDir.resolve("app.db");
         Path sentImagesDir = appDataDir.resolve("images/sent");
         Path deviceKeysDir = appDataDir.resolve("device-keys");
         Path defaultImagesDir = appDataDir.resolve("images/defaults");
 
-        Database database = new Database(dbFile);
+        Database database = new Database();
         database.initializeSchema();
 
         UserRepository userRepository = new UserRepository(database);

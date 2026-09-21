@@ -5,41 +5,124 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx"
+<StackPane fx:id="root"
+           xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.stegomsg.ui.controllers.RegisterController"
-           styleClass="app-content">
-    <VBox alignment="CENTER" maxWidth="380" spacing="14" styleClass="auth-card">
-        <VBox spacing="4" alignment="CENTER">
-            <Label text="Create your account" styleClass="app-title" />
-            <Label text="Only an email and password are required." styleClass="muted" wrapText="true" />
-        </VBox>
+           styleClass="auth-shell">
+    <BorderPane>
+        <left>
+            <VBox spacing="20" prefWidth="395" styleClass="auth-brand-panel">
+                <VBox spacing="8">
+                    <Label text="CREATE YOUR" styleClass="brand-submark"/>
+                    <Label text="SECURE ACCOUNT" styleClass="brand-wordmark"/>
+                </VBox>
 
-        <VBox spacing="8">
-            <Label text="Email" styleClass="muted" />
-            <TextField fx:id="emailField" promptText="you@example.com" />
+                <Region VBox.vgrow="ALWAYS"/>
 
-            <Label text="Display alias (optional)" styleClass="muted" />
-            <TextField fx:id="aliasField" promptText="How others will see you — anonymity encouraged" />
+                <VBox spacing="12">
+                    <Label text="A simpler identity by design." styleClass="brand-headline" wrapText="true"/>
+                    <Label text="Use an email for account access, an optional alias for conversations, and a strong password protecting the encryption keys used by the messenger."
+                           styleClass="brand-copy" wrapText="true"/>
+                </VBox>
 
-            <Label text="Password" styleClass="muted" />
-            <PasswordField fx:id="passwordField" promptText="At least 10 characters" onKeyReleased="#handlePasswordTyped" />
-            <ProgressBar fx:id="strengthBar" maxWidth="Infinity" progress="0" />
-            <Label fx:id="strengthLabel" styleClass="hint" />
+                <VBox spacing="10" styleClass="feature-stack">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="1" styleClass="step-icon"/>
+                        <VBox spacing="2">
+                            <Label text="Account" styleClass="feature-text"/>
+                            <Label text="Email + password" styleClass="brand-step-copy"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="2" styleClass="step-icon"/>
+                        <VBox spacing="2">
+                            <Label text="Encryption keys" styleClass="feature-text"/>
+                            <Label text="Generated locally during registration" styleClass="brand-step-copy"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="3" styleClass="step-icon"/>
+                        <VBox spacing="2">
+                            <Label text="Ready to message" styleClass="feature-text"/>
+                            <Label text="Add contacts and send stego messages" styleClass="brand-step-copy"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </left>
 
-            <Label text="Confirm password" styleClass="muted" />
-            <PasswordField fx:id="confirmPasswordField" promptText="Re-enter password" onAction="#handleRegister" />
-        </VBox>
+        <center>
+            <StackPane styleClass="auth-form-panel">
+                <VBox maxWidth="500" spacing="20" styleClass="auth-form">
+                    <VBox spacing="5">
+                        <Label text="Create your account" styleClass="auth-heading"/>
+                        <Label text="A strong password is important because it also protects your locally recoverable private key."
+                               styleClass="auth-subheading" wrapText="true"/>
+                    </VBox>
 
-        <Label fx:id="errorLabel" styleClass="status-danger" wrapText="true" managed="false" visible="false" />
+                    <Label fx:id="errorLabel" styleClass="inline-banner"
+                           wrapText="true" managed="false" visible="false"/>
 
-        <Button text="Create Account" styleClass="button-primary" maxWidth="Infinity" onAction="#handleRegister" />
-        <Button text="Back to Log In" styleClass="link-button" onAction="#handleGoToLogin" />
+                    <Label fx:id="warningLabel" styleClass="inline-banner"
+                           wrapText="true" managed="false" visible="false"/>
 
-        <Label styleClass="hint" wrapText="true" textAlignment="CENTER"
-               text="We store only your email, a securely hashed password, and a public key used to encrypt messages sent to you. No name, phone number, or other personal details are collected." />
-    </VBox>
+                    <VBox spacing="8">
+                        <Label text="Email address" styleClass="field-label"/>
+                        <TextField fx:id="emailField" promptText="you@example.com" styleClass="auth-input"/>
+                        <Label fx:id="emailHint" styleClass="field-message" managed="false" visible="false"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <HBox alignment="CENTER_LEFT" spacing="4">
+                            <Label text="Display alias" styleClass="field-label"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Optional" styleClass="field-meta"/>
+                        </HBox>
+                        <TextField fx:id="aliasField" promptText="How other people will see you" styleClass="auth-input"/>
+                        <Label text="You can stay pseudonymous — your email is not shown in chat."
+                               styleClass="field-helper" wrapText="true"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Password" styleClass="field-label"/>
+                        <HBox spacing="8" styleClass="password-row">
+                            <PasswordField fx:id="passwordField" promptText="At least 10 characters"
+                                           styleClass="auth-input" HBox.hgrow="ALWAYS" onKeyReleased="#handlePasswordTyped"/>
+                            <TextField fx:id="passwordVisibleField" promptText="At least 10 characters"
+                                       styleClass="auth-input" HBox.hgrow="ALWAYS" managed="false" visible="false"
+                                       onKeyReleased="#handlePasswordTyped"/>
+                            <Button fx:id="passwordToggleButton" text="Show"
+                                    styleClass="input-action" onAction="#togglePasswordVisibility"/>
+                        </HBox>
+                        <ProgressBar fx:id="strengthBar" maxWidth="Infinity" progress="0" styleClass="password-strength"/>
+                        <Label fx:id="strengthLabel" styleClass="field-message"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Confirm password" styleClass="field-label"/>
+                        <PasswordField fx:id="confirmPasswordField" promptText="Re-enter your password"
+                                       styleClass="auth-input" onAction="#handleRegister"/>
+                        <Label fx:id="confirmHint" styleClass="field-message" managed="false" visible="false"/>
+                    </VBox>
+
+                    <VBox spacing="10">
+                        <Button fx:id="registerButton" text="Create Account" maxWidth="Infinity"
+                                styleClass="button-primary" onAction="#handleRegister"/>
+                        <Button text="Back to Log In" maxWidth="Infinity"
+                                styleClass="button-secondary" onAction="#handleGoToLogin"/>
+                    </VBox>
+
+                    <Label text="By creating an account, you agree that this is a privacy-oriented messenger, not a promise of perfect anonymity."
+                           styleClass="trust-copy" wrapText="true"/>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
 </StackPane>
